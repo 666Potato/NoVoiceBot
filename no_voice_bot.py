@@ -1,4 +1,3 @@
-import os
 from telegram.ext import Updater, MessageHandler, Filters
 from wit import Wit
 import ffmpeg
@@ -9,13 +8,13 @@ CLIENT = Wit('CN76OWR2WNWJPNRKRRPUOTDZIHHCQ6L3')
 def echo(update, context):
     """Echo the user message."""
     audio_oga = context.bot.get_file(update.message.voice).download()
-    print(audio_oga)
     stream = ffmpeg.input(audio_oga)
     stream = ffmpeg.output(stream, 'audio.wav')
     ffmpeg.run(stream)
     audio = open('audio.wav', 'rb')
     text = CLIENT.post_speech(audio)
-    update.message.reply_text(text)
+    final_text_json = text['_text']
+    update.message.reply_text(final_text_json)
 
 
 def main():
