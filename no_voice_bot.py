@@ -7,7 +7,6 @@ CLIENT = Wit('CN76OWR2WNWJPNRKRRPUOTDZIHHCQ6L3')
 
 def echo(update, context):
     """Echo the user message."""
-    print(update)
     audio_oga = context.bot.get_file(update.message.voice).download()
     stream = ffmpeg.input(audio_oga)
     stream = ffmpeg.output(stream, 'audio.wav')
