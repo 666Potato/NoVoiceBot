@@ -1,15 +1,17 @@
 import os
 
 import ffmpeg
+from dotenv import load_dotenv
 from telegram.ext import Updater, MessageHandler, Filters
 from wit import Wit
 
-
-CLIENT = Wit('CN76OWR2WNWJPNRKRRPUOTDZIHHCQ6L3')
+load_dotenv()
+CLIENT = Wit(os.getenv('WIT_AI_RUSSIAN'))
 
 
 def echo(update, context):
     """Extract user voice message and convert it to wav for subsequent post request to wit.ai."""
+    message = update.message.reply_text('Обработка аудио \U0001F914', reply_to_message_id=update.message.message_id)
     audio_oga = context.bot.get_file(update.message.voice).download()
     filepath = '{0}_{1}.wav'.format(update.message.from_user['first_name'],
                                     update.message.message_id)
@@ -25,7 +27,16 @@ def echo(update, context):
         text = CLIENT.post_speech(audio)
 
     voice_text = text['_text']
-    update.message.reply_text(voice_text, reply_to_message_id=update.message.message_id)
+    try:
+        if voice_text:
+            message.edit_text(voice_text)
+        else:
+            message.reply_text('Пустое голосовое сообщение')
+    except Exception:
+        os.remove(audio_oga)
+        os.remove(filepath)
+        update.message.reply_text('Ошибка', reply_to_message_id=update.message.message_id)
+        raise ValueError('did not work')
 
     # Delete temporary files
     if os.path.exists(audio_oga) and os.path.exists(filepath):
@@ -35,7 +46,7 @@ def echo(update, context):
 
 def main():
     """Start the bot."""
-    updater = Updater("1260098169:AAFB855CpwQwcSn4c9fjTKjkNIcCtUX8IYk", use_context=True)
+    updater = Updater(os.getenv('TELEGRAM_KEY'), use_context=True)
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.voice, echo))
     # Start the Bot
