@@ -1,9 +1,13 @@
 import os
+import logging
 
 import ffmpeg
 from dotenv import load_dotenv
 from telegram.ext import Updater, MessageHandler, Filters
 from wit import Wit
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', filename='logger.log')
 
 load_dotenv()
 CLIENT = Wit(os.getenv('WIT_AI_RUSSIAN'))
